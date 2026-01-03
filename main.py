@@ -56,8 +56,8 @@ if __name__ == '__main__':
     top_sort_graph.attr(
         splines="curved",
         overlap="false",
-        sep="+1.5")
-    top_sort_graph.attr("node", shape="circle", width="0.8", height="0.8", fixedsize="true", pin="true")
+        sep="+10")
+    top_sort_graph.attr("node", shape="circle")
 
     # Force horizontal ordering with explicit positions
     spacing = 1.5
