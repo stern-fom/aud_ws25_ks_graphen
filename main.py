@@ -55,11 +55,11 @@ if __name__ == '__main__':
     top_sort_graph = graphviz.Digraph(engine="dot")
     top_sort_graph.attr(
         rankdir="TB",
-        splines="curved",
+        splines="ortho",
         nodesep="1.0",
-        ranksep="2.0",
-        overlap="false")
-    top_sort_graph.attr("node", shape="circle", width="0.8", height="0.8")
+        ranksep="1.0",
+        overlap="scalexy")
+    top_sort_graph.attr("node", shape="circle", width="0.8", height="0.8", fixedsize="true")
 
     # Force strict horizontal ordering by creating explicit rank constraints
     for i, node in enumerate(dag_sorted):
@@ -71,7 +71,6 @@ if __name__ == '__main__':
         for successor in dag[node]:
             top_sort_graph.edge(node, successor,
                                 constraint="false",
-                                tailport="n",
-                                headport="n")
+                                )
 
     top_sort_graph.render(filename="top_sort_graph.dot", format="png", view=True)
