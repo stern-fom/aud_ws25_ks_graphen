@@ -50,13 +50,28 @@ if __name__ == '__main__':
         for successor in dag[node]:
             graph.edge(node, successor)
 
-    graph.render(filename="graph.dot", format="png", view=True)
+    #graph.render(filename="graph.dot", format="png", view=True)
 
     top_sort_graph = graphviz.Digraph(engine="dot")
-    top_sort_graph.attr(rankdir="LR")
-    top_sort_graph.attr("node", shape="circle")
+    top_sort_graph.attr(
+        rankdir="TB",
+        splines="curved",
+        nodesep="1.0",
+        ranksep="2.0",
+        overlap="false")
+    top_sort_graph.attr("node", shape="circle", width="0.8", height="0.8")
+
+    # Force strict horizontal ordering by creating explicit rank constraints
+    for i, node in enumerate(dag_sorted):
+        top_sort_graph.node(node, label=node, pos=f"{i},0!")
+        #top_sort_graph.node(node, label=node, rank="same")
+
+    # Add edges AFTER nodes to ensure proper routing
     for node in dag_sorted:
-        top_sort_graph.node(node)
         for successor in dag[node]:
-            top_sort_graph.edge(node, successor)
+            top_sort_graph.edge(node, successor,
+                                constraint="false",
+                                tailport="n",
+                                headport="n")
+
     top_sort_graph.render(filename="top_sort_graph.dot", format="png", view=True)
