@@ -1,3 +1,4 @@
+import graphviz
 from typing import Dict, List
 
 
@@ -40,4 +41,22 @@ if __name__ == '__main__':
         "L": ["G", "M"],
         "M": [],
     }
-    print(top_sort(dag))
+    dag_sorted = top_sort(dag)
+    print(dag_sorted)
+    graph = graphviz.Digraph(engine="dot")
+    graph.attr("node", shape="circle")
+    for node in dag:
+        graph.node(node, label=node)
+        for successor in dag[node]:
+            graph.edge(node, successor)
+
+    graph.render(filename="graph.dot", format="png", view=True)
+
+    top_sort_graph = graphviz.Digraph(engine="dot")
+    top_sort_graph.attr(rankdir="LR")
+    top_sort_graph.attr("node", shape="circle")
+    for node in dag_sorted:
+        top_sort_graph.node(node)
+        for successor in dag[node]:
+            top_sort_graph.edge(node, successor)
+    top_sort_graph.render(filename="top_sort_graph.dot", format="png", view=True)
