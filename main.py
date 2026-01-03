@@ -52,25 +52,41 @@ if __name__ == '__main__':
 
     #graph.render(filename="graph.dot", format="png", view=True)
 
-    top_sort_graph = graphviz.Digraph(engine="dot")
+    top_sort_graph = graphviz.Digraph(engine="neato")
     top_sort_graph.attr(
-        rankdir="TB",
-        splines="ortho",
-        nodesep="1.0",
-        ranksep="1.0",
-        overlap="scalexy")
-    top_sort_graph.attr("node", shape="circle", width="0.8", height="0.8", fixedsize="true")
+        splines="curved",
+        overlap="false",
+        sep="+1.5")
+    top_sort_graph.attr("node", shape="circle", width="0.8", height="0.8", fixedsize="true", pin="true")
 
-    # Force strict horizontal ordering by creating explicit rank constraints
+    # Force horizontal ordering with explicit positions
+    spacing = 1.5
     for i, node in enumerate(dag_sorted):
-        top_sort_graph.node(node, label=node, pos=f"{i},0!")
-        #top_sort_graph.node(node, label=node, rank="same")
+        top_sort_graph.node(node, label=node, pos=f"{i*spacing},0!")
 
-    # Add edges AFTER nodes to ensure proper routing
+    # Add edges with port directions to route around nodes
+    node_positions = {node: i for i, node in enumerate(dag_sorted)}
+    edge_count = {}  # Count edges to alternate between top and bottom
+
     for node in dag_sorted:
         for successor in dag[node]:
-            top_sort_graph.edge(node, successor,
-                                constraint="false",
-                                )
+            distance = abs(node_positions[successor] - node_positions[node])
+
+            # For edges spanning multiple nodes, route via top or bottom
+            if distance > 1:
+                # Alternate between north (top) and south (bottom) routing
+                key = (node, successor)
+                count = edge_count.get(node, 0)
+                edge_count[node] = count + 1
+
+                if count % 2 == 0:
+                    # Route via top
+                    top_sort_graph.edge(node, successor, tailport="n", headport="n")
+                else:
+                    # Route via bottom
+                    top_sort_graph.edge(node, successor, tailport="s", headport="s")
+            else:
+                # Direct connection for adjacent nodes
+                top_sort_graph.edge(node, successor)
 
     top_sort_graph.render(filename="top_sort_graph.dot", format="png", view=True)
